@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFT Image Grid</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent scrollbars */
+            background-color: #EA462B; /* Main BG color */
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 25px); /* Creates a grid with 25px wide columns */
+            grid-auto-rows: 25px; /* Sets the row height to 25px */
+            gap: 0; /* No space between grid items */
+            justify-content: center; /* Center grid horizontally */
+            padding: 5px; /* Optional: Adds some padding around the grid */
+            overflow-y: auto; /* Allows vertical scrolling */
+            height: 100vh; /* Full viewport height */
+        }
+
+        .grid-item img {
+            width: 25px;
+            height: 25px;
+            object-fit: cover; /* Ensures images cover the area */
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-container" id="nftGrid">
+        <!-- NFT images will be added here -->
+    </div>
+
+    <script>
+        let currentPage = 1;
+        const itemsPerPage = 100; // Adjusted for more efficient loading
+
+        async function fetchFrens(page = 1) {
+            const apiUrl = `https://magmascan.org/api/v2/tokens/0x59cc331bdFD3C890f57a06601A6637ac82B6b0FC/instances?page=${page}&limit=${itemsPerPage}`;
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                if (data.items.length > 0) {
+                    displayImages(data.items);
+                    currentPage++;
+                    fetchFrens(currentPage); // Continue fetching next pages
+                }
+            } catch (error) {
+                console.error("Error fetching Fren data:", error);
+            }
+        }
+
+        function displayImages(frens) {
+            const gridContainer = document.getElementById('nftGrid');
+            frens.forEach(fren => {
+                const imgElement = document.createElement('img');
+                imgElement.src = fren.metadata.image; // Assuming this is the correct path to the image
+                imgElement.alt = "NFT Image";
+                const itemElement = document.createElement('div');
+                itemElement.classList.add('grid-item');
+                itemElement.appendChild(imgElement);
+                gridContainer.appendChild(itemElement);
+            });
+        }
+
+        window.onload = () => fetchFrens();
+    </script>
+</body>
+</html>
