@@ -1,1 +1,147 @@
- 
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fren Stats</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #EA462B;
+            /* Main BG color */
+            color: #000;
+            /* Text color */
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .app-title {
+            font-size: 32px;
+            color: #FFA500;
+            /* Orange color for the title */
+            margin-bottom: 20px;
+        }
+
+        .fren-item {
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #FFA500;
+            /* Orange border */
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+        }
+
+        .fren-item img {
+            width: 100px;
+            /* Adjust based on your preference */
+            height: 100px;
+            /* Adjust based on your preference */
+            margin-right: 20px;
+        }
+
+        .fren-info {
+            text-align: left;
+        }
+
+        .leaderboard {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .leaderboard h3 {
+            margin-bottom: 10px;
+        }
+
+        .leaderboard-item {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="app-title">Fren Stats</div>
+
+        <div class="leaderboard">
+            <h3>Top Holders</h3>
+            <div id="leaderboardList">
+                <!-- Leaderboard items will be populated here -->
+            </div><br>
+            <div id="frenList">
+                <!-- Fren items will be populated here -->
+            </div>
+        </div>
+    </div>
+    <script>
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        const frensData = [];
+
+        async function fetchFrens(page = 1) {
+            const apiUrl = `https://magmascan.org/api/v2/tokens/0x59cc331bdFD3C890f57a06601A6637ac82B6b0FC/instances?page=${page}&limit=${itemsPerPage}`;
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                frensData.push(...data.items); // Store fetched data for later use
+                displayFrens(data.items);
+                generateLeaderboard(frensData); // Generate leaderboard from accumulated data
+                if (data.items.length === itemsPerPage) {
+                    currentPage++;
+                    fetchFrens(currentPage); // Fetch next page if there are more items
+                }
+            } catch (error) {
+                console.error("Error fetching Fren data:", error);
+            }
+        }
+
+        function displayFrens(frens) {
+            const listElement = document.getElementById('frenList');
+            frens.forEach(fren => {
+                const itemElement = document.createElement('div');
+                itemElement.classList.add('fren-item');
+                itemElement.innerHTML = `
+                    <img src="${fren.metadata.image}" alt="${fren.metadata.name}">
+                    <div class="fren-info">
+                        <strong>ID:</strong> ${fren.id}<br>
+                        <strong>Name:</strong> ${fren.metadata.name}<br>
+                        <strong>Owner:</strong> ${fren.owner.hash}<br>
+                        <a href="https://magmascan.org/token/0x59cc331bdFD3C890f57a06601A6637ac82B6b0FC/instance/${fren.id}" target="_blank">View on Block Explorer</a>
+                    </div>
+                `;
+                listElement.appendChild(itemElement);
+            });
+        }
+
+        function generateLeaderboard(frens) {
+            const holderCounts = frens.reduce((acc, fren) => {
+                acc[fren.owner.hash] = (acc[fren.owner.hash] || 0) + 1;
+                return acc;
+            }, {});
+
+            const sortedHolders = Object.entries(holderCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            const leaderboardList = document.getElementById('leaderboardList');
+            leaderboardList.innerHTML = ''; // Clear previous leaderboard entries
+
+            sortedHolders.forEach(([hash, count], index) => {
+                const itemElement = document.createElement('div');
+                itemElement.classList.add('leaderboard-item');
+                itemElement.innerText = `${index + 1}. ${hash}: ${count} Fren(s)`;
+                leaderboardList.appendChild(itemElement);
+            });
+        }
+
+        window.onload = () => fetchFrens();
+    </script>
+</body>
+
+</html>
