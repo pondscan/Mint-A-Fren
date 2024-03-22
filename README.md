@@ -9,3 +9,5 @@ MINT HERE: https://pondscan.github.io/Mint-A-Fren/ (wallet connect required!)
 FREN STATS: https://pondscan.github.io/Mint-A-Fren/stats.html (no wallet connect)
 
 FREN GALLERY: https://pondscan.github.io/Mint-A-Fren/view.html (no wallet connect)
+
+*NEW* FREN CHAT: https://pondscan.github.io/Mint-A-Fren/chat.html (wallet connect required!)
