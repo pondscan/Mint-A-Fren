@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FrenChat Feed</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.7.3/dist/web3.min.js"></script>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.toolbar {
+    width: 100%;
+    background-color: #f0f0f0;
+    padding: 10px 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.toolbar * {
+    margin: 0 5px;
+}
+
+.toolbar input,
+.toolbar button {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.toolbar button {
+    border: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+.toolbar button:disabled {
+    background-color: #ccc;
+}
+
+.feed-container {
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.message-card {
+    background: #f9f9f9;
+    border: 1px solid #eaeaea;
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.message-image {
+    width: 55px;
+    height: 55px;
+    margin-right: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.message-content {
+    flex: 1;
+}
+
+.message-name {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.message-text {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.message-details {
+    font-size: 12px;
+    color: #999;
+}
+
+.message-details a {
+    color: #999;
+    text-decoration: none;
+}
+
+.status-panel {
+    max-width: 600px;
+    width: 100%;
+    margin: 20px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    text-align: left;
+    font-size: 14px;
+}
+
+.status-panel > div {
+    margin-bottom: 8px;
+}
+
+#walletStatus {
+    color: #d9534f;
+}
+
+#walletAddress,
+#networkInfo {
+    color: #5cb85c;
+}
+
+#messageBoardTitle {
+    font-family: 'Press Start 2P', cursive;
+    text-align: center;
+    width: 100%;
+    font-size: 20px;
+    margin: 20px 0;
+    color: #007bff;
+    text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .toolbar input, .toolbar button {
+        padding: 8px;
+        font-size: 14px;
+        margin: 5px; /* Ensure spacing on smaller screens */
+    }
+
+    .toolbar {
+        flex-direction: column;
+    }
+
+    .message-card {
+        flex-direction: column;
+        padding: 15px;
+    }
+
+    .message-image {
+        width: 45px;
+        height: 45px;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .message-content {
+        text-align: left;
+    }
+
+    #messageBoardTitle {
+        font-size: 16px;
+        padding: 0 10px;
+    }
+
+    .status-panel {
+        margin: 15px;
+        padding: 8px;
+    }
+}
+
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="toolbar">
+        <input type="text" id="originalTokenId" style="width: 30px;" placeholder="ID" disabled>
+        <input type="text" id="message" placeholder="Message" disabled>
+        <button id="mintNFT" onclick="mintMessageNFT()" disabled>Mint Msg</button>
+        <button onclick="connectWallet()">Connect Wallet</button>
+    </div>
+    <div id="messageBoardTitle">FrenChat Message Board</div>
+    <div class="status-panel">
+        <div id="walletStatus">Not connected</div>
+        <div id="walletAddress"></div>
+        <div id="networkInfo"></div>
+    </div>
+    <div id="feed" class="feed-container"></div>
+
+    <script>
+        let web3;
+        let accounts;
+        let frenchatContract;
+        const contractAddress = "0x7Fdb1dD1e6cC0525baEc8618a9f4dAF271FE5d45"; // Replace with your contract address
+        const contractABI = [
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_originalNFTAddress",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "nonpayable",
+                "type": "constructor"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "approved",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "Approval",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "operator",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "bool",
+                        "name": "approved",
+                        "type": "bool"
+                    }
+                ],
+                "name": "ApprovalForAll",
+                "type": "event"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "approve",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "user",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "string",
+                        "name": "message",
+                        "type": "string"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "originalTokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "MessageMinted",
+                "type": "event"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "originalTokenId",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "message",
+                        "type": "string"
+                    }
+                ],
+                "name": "mintMessageNFT",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "from",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "safeTransferFrom",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "from",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "_data",
+                        "type": "bytes"
+                    }
+                ],
+                "name": "safeTransferFrom",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "operator",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "approved",
+                        "type": "bool"
+                    }
+                ],
+                "name": "setApprovalForAll",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "from",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "Transfer",
+                "type": "event"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "from",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "transferFrom",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    }
+                ],
+                "name": "balanceOf",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "getApproved",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "operator",
+                        "type": "address"
+                    }
+                ],
+                "name": "isApprovedForAll",
+                "outputs": [
+                    {
+                        "internalType": "bool",
+                        "name": "",
+                        "type": "bool"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "name",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "originalNFTAddress",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "ownerOf",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "bytes4",
+                        "name": "interfaceId",
+                        "type": "bytes4"
+                    }
+                ],
+                "name": "supportsInterface",
+                "outputs": [
+                    {
+                        "internalType": "bool",
+                        "name": "",
+                        "type": "bool"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "symbol",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "tokenURI",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ]; // Insert ABI here
+
+        async function connectWallet() {
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                try {
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    accounts = await web3.eth.getAccounts();
+
+                    // Update the UI to reflect the connected wallet and network
+                    document.getElementById('walletStatus').textContent = 'Wallet Connected';
+                    document.getElementById('walletStatus').style.color = '#5cb85c'; // Change color to green
+                    document.getElementById('walletAddress').innerText = `Address: ${accounts[0]}`;
+
+                    // Get and display the network name
+                    const networkId = await web3.eth.net.getId();
+                    const networks = {
+                        1: 'Mainnet',
+                        3: 'Ropsten',
+                        4: 'Rinkeby',
+                        5: 'Goerli',
+                        42: 'Kovan',
+                        6969696969: 'Magma Onyx',
+                        // Add other network IDs here as needed
+                    };
+                    const networkName = networks[networkId] || 'Unknown';
+                    document.getElementById('networkInfo').innerText = `Network: ${networkName}`;
+
+                    // Enable inputs and button
+                    document.getElementById('originalTokenId').disabled = false;
+                    document.getElementById('message').disabled = false;
+                    document.getElementById('mintNFT').disabled = false;
+                    frenchatContract = new web3.eth.Contract(contractABI, contractAddress);
+                } catch (error) {
+                    console.error('Error connecting wallet:', error);
+                }
+            } else {
+                console.error('Please install MetaMask!');
+            }
+        }
+
+
+        async function mintMessageNFT() {
+            const originalTokenId = document.getElementById('originalTokenId').value.trim(); // Keep it as a string
+            const message = document.getElementById('message').value.trim();
+
+            if (!originalTokenId || !message) {
+                console.error('Token ID or message is empty');
+                return;
+            }
+
+            try {
+                const mintTx = await frenchatContract.methods.mintMessageNFT(originalTokenId, message).send({ from: accounts[0] });
+                console.log('Message NFT minted:', mintTx);
+            } catch (error) {
+                console.error('Error minting NFT:', error);
+            }
+        }
+
+
+
+
+        async function fetchNFTData() {
+            try {
+                const response = await fetch('https://magmascan.org/api/v2/tokens/0x7Fdb1dD1e6cC0525baEc8618a9f4dAF271FE5d45/instances');
+                const data = await response.json();
+                return data.items;
+            } catch (error) {
+                console.error('Error fetching NFT data:', error);
+                return [];
+            }
+        }
+
+        async function fetchOriginalNFTMetadata(frenID) {
+            try {
+                const response = await fetch(`https://magmascan.org/api/v2/tokens/0x59cc331bdFD3C890f57a06601A6637ac82B6b0FC/instances/${frenID}`);
+                const data = await response.json();
+                return { name: data.metadata.name, image: data.metadata.image };
+            } catch (error) {
+                console.error('Error fetching original NFT metadata:', error);
+                return { name: 'Unknown', image: '' };
+            }
+        }
+
+        async function displayNFTs(nfts) {
+            const feedElement = document.getElementById('feed');
+            feedElement.innerHTML = '';
+
+            nfts.sort((a, b) => parseInt(b.id) - parseInt(a.id));
+
+            for (const nft of nfts) {
+                const originalNFTMetadata = await fetchOriginalNFTMetadata(nft.metadata.FrenID);
+                const messageCard = document.createElement('div');
+                messageCard.className = 'message-card';
+                messageCard.innerHTML = `
+                    <img src="${originalNFTMetadata.image}" alt="${originalNFTMetadata.name}" class="message-image" />
+                    <div class="message-content">
+                        <div class="message-name">${originalNFTMetadata.name}</div>
+                        <div class="message-text">${nft.metadata.message}</div>
+                        <div class="message-details">
+                            Timestamp: Placeholder Date<br>
+                            <a href="https://magmascan.org/address/${nft.owner.hash}" target="_blank">${nft.owner.hash}</a>
+                        </div>
+                    </div>
+                `;
+                feedElement.appendChild(messageCard);
+            }
+        }
+
+        // Optionally, you can call `fetchNFTData` and `displayNFTs` after minting an NFT to refresh the feed
+        // You might need to implement an event listener or a "Refresh Feed" button for a better user experience
+
+        // Initial call to fetch and display NFTs
+        fetchNFTData().then(displayNFTs);
+
+        // Additional logic to handle feed refreshing after minting can go here
+    </script>
+</body>
+
+</html>
