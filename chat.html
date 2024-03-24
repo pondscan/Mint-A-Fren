@@ -8,194 +8,177 @@
     <script src="https://cdn.jsdelivr.net/npm/web3@1.7.3/dist/web3.min.js"></script>
     <style>
         body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
+            font-family: 'Poppins', sans-serif;
+            background-color: #F8F0E3;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-.toolbar {
-    width: 100%;
-    background-color: #f0f0f0;
-    padding: 10px 0;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-}
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-.toolbar * {
-    margin: 0 5px;
-}
+        .toolbar {
+            width: 100%;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
 
-.toolbar input,
-.toolbar button {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
+        .toolbar input[type="text"],
+        .toolbar button {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            margin: 5px;
+        }
 
-.toolbar button {
-    border: none;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-}
+        .toolbar button {
+            background-color: #6A8D92;
+            color: white;
+            cursor: pointer;
+        }
 
-.toolbar button:disabled {
-    background-color: #ccc;
-}
+        .toolbar button:hover {
+            background-color: #57777b;
+        }
 
-.feed-container {
-    max-width: 600px;
-    width: 100%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
+        .toolbar button:disabled {
+            background-color: #ccc;
+        }
 
-.message-card {
-    background: #f9f9f9;
-    border: 1px solid #eaeaea;
-    margin-bottom: 20px;
-    padding: 20px;
-    border-radius: 10px;
-    display: flex;
-    align-items: flex-start;
-}
+        .feed-container {
+            width: 100%;
+        }
 
-.message-image {
-    width: 55px;
-    height: 55px;
-    margin-right: 20px;
-    border-radius: 50%;
-    object-fit: cover;
-}
+        .message-card {
+            background-color: #e5e5ea;
+            margin-bottom: 10px;
+            padding: 10px 14px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+        }
 
-.message-content {
-    flex: 1;
-}
+        .outgoing {
+            background-color: #007aff;
+            color: white;
+            align-self: flex-end;
+        }
 
-.message-name {
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 8px;
-}
+        .message-image {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
 
-.message-text {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 10px;
-}
+        .message-content {
+            text-align: left;
+        }
 
-.message-details {
-    font-size: 12px;
-    color: #999;
-}
+        .message-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
 
-.message-details a {
-    color: #999;
-    text-decoration: none;
-}
+        .message-text {
+            margin-bottom: 5px;
+        }
 
-.status-panel {
-    max-width: 600px;
-    width: 100%;
-    margin: 20px;
-    padding: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
-    background-color: #f9f9f9;
-    text-align: left;
-    font-size: 14px;
-}
+        .message-details {
+            font-size: 12px;
+            color: #999;
+        }
 
-.status-panel > div {
-    margin-bottom: 8px;
-}
+        .message-details a {
+            color: #999;
+            text-decoration: none;
+        }
 
-#walletStatus {
-    color: #d9534f;
-}
+        .status-panel {
+            width: 100%;
+            margin: 20px 0;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: #f9f9f9;
+            text-align: left;
+            font-size: 14px;
+        }
 
-#walletAddress,
-#networkInfo {
-    color: #5cb85c;
-}
+        #walletStatus {
+            color: #d9534f;
+        }
 
-#messageBoardTitle {
-    font-family: 'Press Start 2P', cursive;
-    text-align: center;
-    width: 100%;
-    font-size: 20px;
-    margin: 20px 0;
-    color: #007bff;
-    text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.2);
-}
+        #walletAddress,
+        #networkInfo {
+            color: #5cb85c;
+        }
 
-/* Responsive adjustments */
-@media (max-width: 600px) {
-    .toolbar input, .toolbar button {
-        padding: 8px;
-        font-size: 14px;
-        margin: 5px; /* Ensure spacing on smaller screens */
-    }
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
 
-    .toolbar {
-        flex-direction: column;
-    }
+            .toolbar input[type="text"],
+            .toolbar button {
+                padding: 8px;
+                font-size: 14px;
+                margin: 5px;
+            }
 
-    .message-card {
-        flex-direction: column;
-        padding: 15px;
-    }
+            .toolbar {
+                flex-direction: column;
+            }
 
-    .message-image {
-        width: 45px;
-        height: 45px;
-        margin-right: 0;
-        margin-bottom: 10px;
-    }
+            .message-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
 
-    .message-content {
-        text-align: left;
-    }
+            .message-image {
+                margin-bottom: 10px;
+            }
 
-    #messageBoardTitle {
-        font-size: 16px;
-        padding: 0 10px;
-    }
-
-    .status-panel {
-        margin: 15px;
-        padding: 8px;
-    }
-}
-
+            .message-content {
+                align-items: center;
+            }
+        }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 
 <body>
-    <div class="toolbar">
-        <input type="text" id="originalTokenId" style="width: 30px;" placeholder="ID" disabled>
-        <input type="text" id="message" placeholder="Message" disabled>
-        <button id="mintNFT" onclick="mintMessageNFT()" disabled>Mint Msg</button>
-        <button onclick="connectWallet()">Connect Wallet</button>
+    <div class="container">
+        <div class="app-title">FrenChat Message Board</div>
+        <div class="toolbar">
+            <input type="text" id="originalTokenId" placeholder="ID" disabled>
+            <input type="text" id="message" placeholder="Message" disabled>
+            <button id="mintNFT" onclick="mintMessageNFT()" disabled>Mint Msg</button>
+            <button id="connectWallet" onclick="connectWallet()">Connect Wallet</button>
+        </div>
+        <div class="status-panel">
+            <div id="walletStatus">Not connected</div>
+            <div id="walletAddress"></div>
+            <div id="networkInfo"></div>
+        </div>
+        <div id="feed" class="feed-container"></div>
     </div>
-    <div id="messageBoardTitle">FrenChat Message Board</div>
-    <div class="status-panel">
-        <div id="walletStatus">Not connected</div>
-        <div id="walletAddress"></div>
-        <div id="networkInfo"></div>
-    </div>
-    <div id="feed" class="feed-container"></div>
 
     <script>
         let web3;
         let accounts;
         let frenchatContract;
+        let userAddress = ''; // Variable to store the connected user's address
         const contractAddress = "0x7Fdb1dD1e6cC0525baEc8618a9f4dAF271FE5d45"; // Replace with your contract address
         const contractABI = [
             {
@@ -601,7 +584,7 @@
                 "stateMutability": "view",
                 "type": "function"
             }
-        ]; // Insert ABI here
+        ];
 
         async function connectWallet() {
             if (window.ethereum) {
@@ -609,13 +592,12 @@
                 try {
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     accounts = await web3.eth.getAccounts();
+                    userAddress = accounts[0].toLowerCase(); // Store the connected user's address in lowercase
 
-                    // Update the UI to reflect the connected wallet and network
                     document.getElementById('walletStatus').textContent = 'Wallet Connected';
                     document.getElementById('walletStatus').style.color = '#5cb85c'; // Change color to green
-                    document.getElementById('walletAddress').innerText = `Address: ${accounts[0]}`;
+                    document.getElementById('walletAddress').innerText = `Address: ${userAddress}`;
 
-                    // Get and display the network name
                     const networkId = await web3.eth.net.getId();
                     const networks = {
                         1: 'Mainnet',
@@ -629,7 +611,6 @@
                     const networkName = networks[networkId] || 'Unknown';
                     document.getElementById('networkInfo').innerText = `Network: ${networkName}`;
 
-                    // Enable inputs and button
                     document.getElementById('originalTokenId').disabled = false;
                     document.getElementById('message').disabled = false;
                     document.getElementById('mintNFT').disabled = false;
@@ -642,9 +623,8 @@
             }
         }
 
-
         async function mintMessageNFT() {
-            const originalTokenId = document.getElementById('originalTokenId').value.trim(); // Keep it as a string
+            const originalTokenId = document.getElementById('originalTokenId').value.trim();
             const message = document.getElementById('message').value.trim();
 
             if (!originalTokenId || !message) {
@@ -653,15 +633,12 @@
             }
 
             try {
-                const mintTx = await frenchatContract.methods.mintMessageNFT(originalTokenId, message).send({ from: accounts[0] });
+                const mintTx = await frenchatContract.methods.mintMessageNFT(originalTokenId, message).send({ from: userAddress });
                 console.log('Message NFT minted:', mintTx);
             } catch (error) {
                 console.error('Error minting NFT:', error);
             }
         }
-
-
-
 
         async function fetchNFTData() {
             try {
@@ -693,8 +670,10 @@
 
             for (const nft of nfts) {
                 const originalNFTMetadata = await fetchOriginalNFTMetadata(nft.metadata.FrenID);
+                const isOutgoing = nft.owner.hash.toLowerCase() === accounts[0].toLowerCase(); // Assuming 'accounts[0]' is the user's address
+                const messageCardClass = isOutgoing ? 'message-card outgoing' : 'message-card incoming';
                 const messageCard = document.createElement('div');
-                messageCard.className = 'message-card';
+                messageCard.className = messageCardClass;
                 messageCard.innerHTML = `
                     <img src="${originalNFTMetadata.image}" alt="${originalNFTMetadata.name}" class="message-image" />
                     <div class="message-content">
@@ -716,7 +695,18 @@
         // Initial call to fetch and display NFTs
         fetchNFTData().then(displayNFTs);
 
-        // Additional logic to handle feed refreshing after minting can go here
+        // Listen for wallet connection to refresh the feed
+        document.getElementById('connectWallet').addEventListener('click', async () => {
+            await connectWallet();
+            fetchNFTData().then(displayNFTs);
+        });
+
+        // Listen for NFT minting to refresh the feed
+        document.getElementById('mintNFT').addEventListener('click', async () => {
+            await mintMessageNFT();
+            fetchNFTData().then(displayNFTs);
+        });
+
     </script>
 </body>
 
