@@ -5,13 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fren Stats</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #EA462B;
-            /* Main BG color */
-            color: #000;
-            /* Text color */
+            font-family: 'Poppins', sans-serif;
+            background-color: #F8F0E3;
+            color: #333;
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -22,29 +21,33 @@
             margin: 0 auto;
             padding: 20px;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            /* Keeps children stacked vertically */
+            align-items: center;
+            /* Centers children horizontally */
         }
+
 
         .app-title {
             font-size: 32px;
-            color: #FFA500;
-            /* Orange color for the title */
+            color: #6A8D92;
             margin-bottom: 20px;
+            width: 100%;
+            /* Ensure the title spans the full width */
         }
 
         .fren-item {
             display: flex;
             align-items: center;
-            border-bottom: 1px solid #FFA500;
-            /* Orange border */
+            border-bottom: 1px solid #F3B0C3;
             margin-bottom: 10px;
             padding-bottom: 10px;
         }
 
         .fren-item img {
             width: 100px;
-            /* Adjust based on your preference */
             height: 100px;
-            /* Adjust based on your preference */
             margin-right: 20px;
         }
 
@@ -52,17 +55,74 @@
             text-align: left;
         }
 
-        .leaderboard {
-            margin-top: 20px;
-            text-align: left;
+
+        .top-section {
+            display: flex;
+            flex-wrap: wrap;
+            /* Allows items to wrap on smaller screens */
+            justify-content: center;
+            /* Centers items horizontally */
+            width: 100%;
+            /* Ensures the top section spans the full width of the container */
         }
 
-        .leaderboard h3 {
+        .stats,
+        .leaderboard {
+            flex: 1;
+            /* Allows both sections to grow and share available space */
+            margin: 10px;
+            /* Adds spacing between the sections */
+            min-width: 250px;
+            /* Prevents the sections from becoming too narrow */
+        }
+
+        .leaderboard h3,
+        .stats h3 {
             margin-bottom: 10px;
+            color: #94B49F;
         }
 
         .leaderboard-item {
+            font-size: 14px;
+            /* Smaller font size for leaderboard items */
             margin-bottom: 5px;
+            color: #7A6F9B;
+        }
+
+        /* New style for general stats section */
+        .stat-item {
+            margin-bottom: 10px;
+        }
+
+        .search-bar {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .search-bar input[type="text"] {
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            width: 60%;
+            max-width: 400px;
+        }
+
+        .search-bar button {
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
+            padding: 10px 20px;
+            margin-left: 10px;
+            background-color: #6A8D92;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .search-bar button:hover {
+            background-color: #57777b;
         }
     </style>
 </head>
@@ -72,37 +132,87 @@
     <div class="container">
         <div class="app-title">Fren Stats</div>
 
-        <div class="leaderboard">
-            <h3>Top Holders</h3>
-            <div id="leaderboardList">
-                <!-- Leaderboard items will be populated here -->
-            </div><br>
-            <div id="frenList">
-                <!-- Fren items will be populated here -->
+        <!-- Grouping General Stats and Leaderboard together -->
+        <div class="top-section">
+            <div class="stats">
+                <h3>General Stats</h3>
+                <p class="stat-item">Total Frens: <span id="totalFrens">0</span></p>
+                <p class="stat-item">Total Holders: <span id="totalHolders">0</span></p>
+            </div>
+
+            <div class="leaderboard">
+                <h3>Top Holders</h3>
+                <div id="leaderboardList">
+                    <!-- Leaderboard items will be populated here -->
+                </div>
             </div>
         </div>
+
+        <!-- Fren List section -->
+        <div id="frenList">
+            <!-- Fren items will be populated here -->
+        </div>
     </div>
+
+
     <script>
         let currentPage = 1;
         const itemsPerPage = 10;
         const frensData = [];
 
-        async function fetchFrens(page = 1) {
-            const apiUrl = `https://magmascan.org/api/v2/tokens/0x59cc331bdFD3C890f57a06601A6637ac82B6b0FC/instances?page=${page}&limit=${itemsPerPage}`;
-            try {
-                const response = await fetch(apiUrl);
-                const data = await response.json();
-                frensData.push(...data.items); // Store fetched data for later use
-                displayFrens(data.items);
-                generateLeaderboard(frensData); // Generate leaderboard from accumulated data
-                if (data.items.length === itemsPerPage) {
-                    currentPage++;
-                    fetchFrens(currentPage); // Fetch next page if there are more items
+        async function fetchFrens() {
+            let allFrens = []; // Store all fetched Frens
+            let uniqueHolders = new Set(); // Use a Set to store unique holder addresses
+            let uniqueToken = null; // Initially, there's no unique token
+            const pageSize = 10; // You can adjust this as needed
+
+            while (true) {
+                let apiUrl = `https://magmascan.org/api/v2/tokens/0x59cc331bdFD3C890f57a06601A6637ac82B6b0FC/instances?limit=${pageSize}`;
+                if (uniqueToken) {
+                    apiUrl += `&unique_token=${uniqueToken}`; // Append the unique token if it exists
                 }
-            } catch (error) {
-                console.error("Error fetching Fren data:", error);
+
+                try {
+                    const response = await fetch(apiUrl);
+                    if (!response.ok) {
+                        throw new Error(`API call failed with status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    if (!data.items || data.items.length === 0) {
+                        break; // Exit the loop if no items are fetched
+                    }
+
+                    allFrens = allFrens.concat(data.items); // Add fetched items to the allFrens array
+                    data.items.forEach(item => uniqueHolders.add(item.owner.hash)); // Add owner address to the Set of unique holders
+
+                    if (!data.next_page_params || data.next_page_params.unique_token === null) {
+                        break; // Exit the loop if there are no more pages
+                    }
+
+                    uniqueToken = data.next_page_params.unique_token; // Update the unique token for the next iteration
+                } catch (error) {
+                    console.error("Error fetching Frens:", error);
+                    break; // Exit the loop in case of an error
+                }
             }
+
+            displayFrens(allFrens);
+            generateLeaderboard(allFrens);
+            updateGeneralStats(allFrens.length, uniqueHolders.size); // Update general stats with total frens and unique holders
         }
+
+        function updateGeneralStats(totalFrens, totalHolders) {
+            // Update the Total Frens count
+            const totalFrensElement = document.getElementById('totalFrens');
+            totalFrensElement.textContent = totalFrens;
+
+            // Update the Total Holders count
+            const totalHoldersElement = document.getElementById('totalHolders');
+            totalHoldersElement.textContent = totalHolders;
+        }
+
+        window.onload = () => fetchFrens();
 
         function displayFrens(frens) {
             const listElement = document.getElementById('frenList');
@@ -122,6 +232,17 @@
             });
         }
 
+        function filterFrens() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredFrens = allFrens.filter(fren => {
+                const ownerAddress = fren.owner.hash.toLowerCase();
+                const name = fren.metadata.name.toLowerCase();
+                return ownerAddress.includes(searchTerm) || name.includes(searchTerm);
+            });
+            displayFrens(filteredFrens);
+        }
+
+
         function generateLeaderboard(frens) {
             const holderCounts = frens.reduce((acc, fren) => {
                 acc[fren.owner.hash] = (acc[fren.owner.hash] || 0) + 1;
@@ -133,12 +254,14 @@
             leaderboardList.innerHTML = ''; // Clear previous leaderboard entries
 
             sortedHolders.forEach(([hash, count], index) => {
+                const shortenedHash = hash.slice(0, 4) + '...' + hash.slice(-4); // Shorten the hash
                 const itemElement = document.createElement('div');
                 itemElement.classList.add('leaderboard-item');
-                itemElement.innerText = `${index + 1}. ${hash}: ${count} Fren(s)`;
+                itemElement.innerText = `${index + 1}. ${shortenedHash}: ${count} Fren(s)`;
                 leaderboardList.appendChild(itemElement);
             });
         }
+
 
         window.onload = () => fetchFrens();
     </script>
