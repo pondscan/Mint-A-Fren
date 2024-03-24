@@ -1,101 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mint-A-Fren App</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #EA462B; /* Main BG color */
-            color: #000; /* Text color */
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MagmaFrens</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: 'Poppins', sans-serif;
+      color: #333;
+    }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            text-align: center;
-        }
+    .bg {
+      background-image: linear-gradient(rgba(255, 255, 255, 0.0), rgba(255, 255, 255, 0.0)), url('magmafrens_bg.jpg');
+      background-size: cover;
+      background-position: center;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
 
-        .app-title {
-            font-size: 32px;
-            color: #FFA500; /* Orange color for the title */
-            margin-bottom: 10px;
-        }
+    .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      text-align: center;
+    }
 
-        .app-subtitle {
-            font-size: 20px;
-            color: #000; /* Black color for the subtitle */
-            margin-bottom: 30px;
-        }
+    .logo {
+      width: 120vw;
+      height: 200px;
+      background-image: url('magmafrens_header.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      border-radius: 15px;
+      margin-bottom: 20px;
+    }
 
-        input, button {
-            margin-top: 10px;
-            padding: 12px;
-            font-size: 16px;
-            width: 90%;
-            border: 2px solid #FFA500; /* Orange border */
-            border-radius: 5px; /* Rounded corners */
-            box-sizing: border-box; /* Better width management */
-            background-color: #FFF3E0; /* Light orange background */
-            color: #000; /* Black text */
-        }
+    .button-panel {
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(8px);
+      border: 2px solid white;
+      border-radius: 15px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-        button {
-            background-color: #FFA500; /* Orange background for buttons */
-            color: #000; /* Black text for buttons */
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
-        }
+    .text-field,
+    .mint-button,
+    .connect-btn {
+      margin: 10px;
+      padding: 12px;
+      border-radius: 15px;
+      font-family: 'Poppins', sans-serif;
+    }
 
-        button:hover {
-            background-color: #FF8C00; /* Darker orange on hover */
-            transform: translateY(-2px); /* Slight lift effect */
-        }
+    .text-field {
+      border: 1px solid #ccc;
+    }
 
-        .greyed-out {
-            opacity: 0.6;
-            pointer-events: none;
-        }
+    .mint-button,
+    .connect-btn {
+      background-color: #6A8D92;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
 
-        .active, .connect-btn {
-            opacity: 1;
-            pointer-events: auto;
-        }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+    .mint-button:hover,
+    .connect-btn:hover {
+      background-color: #57777b;
+    }
+    
+    .modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  }
+
+  /* Modal Content/Box */
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 40%; /* Could be more or less, depending on screen size */
+    border-radius: 10px; /* Optional: for rounded corners */
+  }
+
+  /* The Close Button */
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  #nftImage {
+    display: block;
+    margin: 0 auto; /* Centers the image */
+    width: 150px; /* Adjusts the size */
+    height: 150px; /* Adjusts the size */
+    border-radius: 10px; /* Optional: for rounded corners */
+  }
+
+  #nftName {
+    text-align: center; /* Centers the text */
+    font-size: 20px; /* Makes the text larger */
+    font-weight: bold; /* Makes the text bold */
+    margin-top: 10px; /* Adds some space between the image and the text */
+  }
+
+  .confetti {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1050; /* Ensure it's above other elements but below modal (adjust as needed) */
+  }
+
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti"></script>
+
 </head>
+
 <body>
-    <div class="container">
-        <div class="app-title">Mint-A-Fren</div>
-        <div class="app-subtitle">Connect your wallet and mint your Fren</div>
+  <div id="confettiWrapper" class="confetti"></div>
 
-        <button class="connect-btn" onclick="connectWallet()">Connect Wallet</button>
+  <div class="bg"></div>
 
-        <div id="app" class="greyed-out">
-            <div>
-                <p id="walletConnected">Wallet Connected: <span id="userAddress">No</span></p>
-            </div>
-            <div id="mintSection">
-                <input type="text" id="frenName" placeholder="Your Fren's Name">
-                <button onclick="mintFren()">Mint Your Fren</button>
-            </div>
-        </div><br>
-        <div id="frenCount">You own 0 Fren(s)</div>
-<div id="frenImages"></div>
-
+  <div class="container">
+    <div class="logo"></div>
+    <div class="button-panel">
+      <button class="connect-btn" onclick="connectWallet()">Connect Wallet</button>
+      <div id="app" class="greyed-out">
+        <div>
+          <p id="walletConnected">Wallet Connected: <span id="userAddress">No</span></p>
+        </div>
+        <div class="action-container">
+          <input type="text" class="text-field" id="frenName" placeholder="Name your Fren">
+          <button class="mint-button" onclick="mintFren()">Mint a Fren</button>
+        </div>
+      </div>
     </div>
-    <script>
-        let web3;
-        let mintAFrenContract;
-        const mintAFrenContractAddress = "0x59cc331bdFD3C890f57a06601A6637ac82B6b0FC"; // Replace with your MintAFren contract address
-        const mintAFrenABI = [
+  </div>
+
+  <div id="nftModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <div id="modalMessage">Your fren is being delivered...</div>
+      <div id="nftDetails" style="display: none;">
+        <p id="nftName">Welcome! <span></span></p>
+        <img id="nftImage" src="" alt="Minted NFT" style="width: 100px; height: 100px;" />
+        <p>Transaction Hash: <span id="txHash"></span></p>
+        <p>View on Magma Scan: <a id="magmaScanLink" href="" target="_blank">Link</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let web3;
+    let mintAFrenContract;
+    const mintAFrenContractAddress = "0x59cc331bdFD3C890f57a06601A6637ac82B6b0FC"; // Replace with your contract address
+    const mintAFrenABI = [
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",
@@ -690,74 +786,111 @@
 		"type": "function"
 	}
 ];
-    
-async function connectWallet() {
-        if (window.ethereum) {
-            try {
-                await ethereum.request({ method: 'eth_requestAccounts' });
-                web3 = new Web3(window.ethereum);
-                mintAFrenContract = new web3.eth.Contract(mintAFrenABI, mintAFrenContractAddress);
-                const accounts = await web3.eth.getAccounts();
-                const account = accounts[0];
-                document.getElementById('walletConnected').textContent = `Wallet Connected: ${account}`;
-                document.getElementById('app').classList.remove('greyed-out');
-                await updateFrensDisplay(account);
-            } catch (error) {
-                alert("Error connecting to wallet: " + error.message);
-            }
-        } else {
-            alert("Please install MetaMask to use this app.");
-        }
-    }
-
-    async function mintFren() {
-        const frenNameInput = document.getElementById('frenName');
-        const frenName = frenNameInput.value.trim().toUpperCase(); // Convert to uppercase as required by the contract
-        if (!frenName) {
-            alert("Please enter your Fren's name in uppercase.");
-            return;
-        }
-
-        // Validate the frenName format based on your smart contract requirements
-        if (!/^[A-Z0-9_]+$/.test(frenName) || frenName.length > 16) {
-            alert("Invalid Fren name. Only uppercase letters, numbers, and underscores are allowed. Max length is 16 characters.");
-            return;
-        }
-
+  
+    async function connectWallet() {
+      if (window.ethereum) {
         try {
-            const accounts = await web3.eth.getAccounts();
-            const account = accounts[0];
-            await mintAFrenContract.methods.mint(frenName).send({ from: account, value: web3.utils.toWei("0.05", "ether") });
-            alert("Successfully minted your Fren!");
-            frenNameInput.value = ''; // Clear input after successful minting
-            await updateFrensDisplay(account); // Update the Frens display
+          await window.ethereum.request({ method: 'eth_requestAccounts' });
+          web3 = new Web3(window.ethereum);
+          mintAFrenContract = new web3.eth.Contract(mintAFrenABI, mintAFrenContractAddress);
+          const accounts = await web3.eth.getAccounts();
+          const account = accounts[0];
+          document.getElementById('walletConnected').innerHTML = `Wallet Connected: ${account}`;
+          document.getElementById('app').classList.remove('greyed-out');
         } catch (error) {
-            alert("Failed to mint your Fren: " + error.message);
+          alert("Error connecting to wallet: " + error.message);
         }
+      } else {
+        alert("Please install MetaMask to use this app.");
+      }
     }
-
-    async function updateFrensDisplay(account) {
-        const balance = await mintAFrenContract.methods.balanceOf(account).call();
-        document.getElementById('frenCount').innerText = `You own ${balance} Fren(s)`;
-
-        const frenImagesDiv = document.getElementById('frenImages');
-        frenImagesDiv.innerHTML = ''; // Clear existing images
-
-        for (let i = 0; i < balance; i++) {
-            const tokenId = await mintAFrenContract.methods.tokenOfOwnerByIndex(account, i).call();
-            const tokenURI = await mintAFrenContract.methods.tokenURI(tokenId).call();
-            const metadata = atob(tokenURI.split(',')[1]); // Assuming tokenURI is a base64 encoded JSON
-            const metadataObj = JSON.parse(metadata);
-            const imgURL = metadataObj.image;
-
-            const imgElement = document.createElement('img');
-            imgElement.src = imgURL;
-            imgElement.width = 100;
-            imgElement.height = 100;
-            frenImagesDiv.appendChild(imgElement);
+  
+    function showModal() {
+      document.getElementById('nftModal').style.display = "block";
+    }
+  
+    function closeModal() {
+      document.getElementById('nftModal').style.display = "none";
+    }
+  
+    async function mintFren() {
+      const frenNameInput = document.getElementById('frenName');
+      const frenName = frenNameInput.value.trim().toUpperCase();
+      if (!frenName) {
+        alert("Please enter your Fren's name in uppercase.");
+        return;
+      }
+  
+      showModal();
+      document.getElementById('modalMessage').innerText = "Your fren is being delivered...";
+      document.getElementById('nftDetails').style.display = "none";
+  
+      try {
+        const accounts = await web3.eth.getAccounts();
+        const account = accounts[0];
+        mintAFrenContract.methods.mint(frenName).send({ from: account, value: web3.utils.toWei("0.05", "ether") })
+          .on('transactionHash', function (hash) {
+            // Transaction was sent to the network
+          })
+          .on('receipt', async function (receipt) {
+            // Transaction was confirmed
+            const tokenId = receipt.events.Transfer.returnValues.tokenId;
+            const tokenURI = await mintAFrenContract.methods.tokenURI(tokenId).call(); // Fetch token URI based on tokenId
+            const metadata = JSON.parse(atob(tokenURI.split(',')[1])); // Assuming tokenURI is a base64 encoded JSON string
+  
+            document.getElementById('modalMessage').innerText = "Your Fren has arrived!";
+            document.getElementById('nftName').innerHTML = `<strong>NFT Name: ${metadata.name}</strong>`; // Update with actual NFT name in bold
+            document.getElementById('nftImage').src = metadata.image; // Update with actual NFT image URL
+            document.getElementById('nftImage').className = 'nft-image'; // Assign class for styling
+            document.getElementById('txHash').innerText = receipt.transactionHash;
+            document.getElementById('magmaScanLink').href = `https://magmascan.org/token/${mintAFrenContractAddress}/instance/${tokenId}`;
+            document.getElementById('nftDetails').style.display = "block";
+  
+            // Trigger confetti
+            confetti({
+              zIndex: 1040,
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 }
+            });
+          })
+          .on('error', function (error) {
+            // Transaction failed
+            document.getElementById('modalMessage').innerText = "Transaction failed. Please try again.";
+          });
+      } catch (error) {
+        document.getElementById('modalMessage').innerText = "Error minting your Fren: " + error.message;
+      }
+    }
+  
+    window.onclick = function (event) {
+      if (event.target == document.getElementById('nftModal')) {
+        closeModal();
+      }
+    }
+  
+    if (window.ethereum) {
+      ethereum.on('accountsChanged', function (accounts) {
+        const account = accounts[0];
+        if (account) {
+          document.getElementById('walletConnected').innerHTML = `Wallet Connected: ${account}`;
+          document.getElementById('app').classList.remove('greyed-out');
+        } else {
+          document.getElementById('walletConnected').innerHTML = "Wallet Connected: No";
+          document.getElementById('app').classList.add('greyed-out');
         }
+      });
+  
+      ethereum.on('chainChanged', (_chainId) => window.location.reload());
     }
-</script>
-    
+  
+    window.addEventListener('DOMContentLoaded', (event) => {
+      if (window.ethereum && window.ethereum.isConnected()) {
+        connectWallet();
+      }
+    });
+  </script>
+
 </body>
+
 </html>
