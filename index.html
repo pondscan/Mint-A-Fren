@@ -839,7 +839,7 @@
             const metadata = JSON.parse(atob(tokenURI.split(',')[1])); // Assuming tokenURI is a base64 encoded JSON string
   
             document.getElementById('modalMessage').innerText = "Your Fren has arrived!";
-            document.getElementById('nftName').innerHTML = `<strong>NFT Name: ${metadata.name}</strong>`; // Update with actual NFT name in bold
+            document.getElementById('nftName').innerHTML = `<strong>${metadata.name}</strong>`; // Update with actual NFT name in bold
             document.getElementById('nftImage').src = metadata.image; // Update with actual NFT image URL
             document.getElementById('nftImage').className = 'nft-image'; // Assign class for styling
             document.getElementById('txHash').innerText = receipt.transactionHash;
