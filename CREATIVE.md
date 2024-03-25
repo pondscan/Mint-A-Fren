@@ -1,5 +1,7 @@
 # Magma Frens NFT 2.0 Collection Brief
 
+![Magma Frens Concept Art](https://pondscan.github.io/Mint-A-Fren/magmafrens_bg.jpg "Magma Frens")
+
 ## Overview
 "Magma Frens" is a captivating NFT 2.0 collection on the Magma blockchain, featuring adorable elemental characters. Emphasizing the "Crypto 2.0" ethos, it places user engagement and customization at its core, fostering a vibrant community.
 
