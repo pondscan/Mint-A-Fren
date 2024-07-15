@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/Mint-A-Fren/v2/static/css/main.c73792cd.css",
-    "main.js": "/Mint-A-Fren/v2/static/js/main.42592579.js",
+    "main.js": "/Mint-A-Fren/v2/static/js/main.9f6e5059.js",
     "static/js/453.d962e5a7.chunk.js": "/Mint-A-Fren/v2/static/js/453.d962e5a7.chunk.js",
     "index.html": "/Mint-A-Fren/v2/index.html",
     "main.c73792cd.css.map": "/Mint-A-Fren/v2/static/css/main.c73792cd.css.map",
-    "main.42592579.js.map": "/Mint-A-Fren/v2/static/js/main.42592579.js.map",
+    "main.9f6e5059.js.map": "/Mint-A-Fren/v2/static/js/main.9f6e5059.js.map",
     "453.d962e5a7.chunk.js.map": "/Mint-A-Fren/v2/static/js/453.d962e5a7.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.c73792cd.css",
-    "static/js/main.42592579.js"
+    "static/js/main.9f6e5059.js"
   ]
 }
